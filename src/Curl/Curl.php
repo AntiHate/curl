@@ -367,6 +367,11 @@ class Curl
           $filePath = $path.'/'.$filename;
 
         $file_handle = fopen($filePath, 'w+');
+        if ($file_handle == FALSE){
+          $this->error = true;
+          $this->error_message = "Unable to open file.";
+          return $this;
+        }
 
         $this->setOpt(CURLOPT_FILE, $file_handle);
 
@@ -400,14 +405,20 @@ class Curl
         }
         $this->setOpt(CURLOPT_HTTPGET, true);
 
-        $this->exec();
-
         if(is_null($filename))
           $filePath = $path.'/'.basename($url);
         else
           $filePath = $path.'/'.$filename;
 
         $file_handle = fopen($filePath, 'w+');
+        if ($file_handle == FALSE){
+          $this->error = true;
+          $this->error_message = "Unable to open file.";
+          return $this;
+        }
+
+        $this->exec();
+
         fwrite($file_handle, $this->response);
         fclose($file_handle);
 
@@ -765,7 +776,7 @@ class Curl
      */
     public function isSuccess()
     {
-        return $this->getHttpStatus() >= 200 && $this->getHttpStatus() < 300;
+        return $this->getHttpStatus() >= 200 && $this->getHttpStatus() < 300 && !$this->error;
     }
 
     /**
@@ -783,7 +794,7 @@ class Curl
      */
     public function isError()
     {
-        return $this->getHttpStatus() >= 400 && $this->getHttpStatus() < 600;
+        return $this->getHttpStatus() >= 400 && $this->getHttpStatus() < 600 || $this->error;
     }
 
     /**
@@ -874,7 +885,16 @@ class Curl
      */
     public function getErrorMessage()
     {
-        return $this->curl_error_message;
+        return $this->curl_error_message ? $this->curl_error_message : $this->error_message;
+    }
+
+    /**
+     * Get Content-Type from response headers
+     * @return string
+     */
+    public function getContentType()
+    {
+        return $this->getResponseHeaders('Content-Type');
     }
 
     /**
