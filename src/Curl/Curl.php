@@ -211,7 +211,7 @@ class Curl
      */
     public function exec()
     {
-        $this->setCookieFile($this->getOpt(CURLOPT_URL));
+        $this->setCookieFile();
         $this->setHeader('Accept', '*/*');
         $this->setHeader('Connection', 'Keep-Alive');
 
@@ -248,11 +248,11 @@ class Curl
      */
 
      /**
-     * @param string $url
+     *
      */
-    protected function setCookieFile($url)
+    protected function setCookieFile()
     {
-      $cookieFile = "/tmp/".parse_url($url)['host']."_cookie.txt";
+      $cookieFile = "/tmp/".parse_url( curl_getinfo($this->curl)['url'] )['host']."_cookie.txt";
 
       $this->setOpt(CURLOPT_COOKIEFILE, $cookieFile);
       $this->setOpt(CURLOPT_COOKIEJAR, $cookieFile);
