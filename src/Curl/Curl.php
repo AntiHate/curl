@@ -341,6 +341,38 @@ class Curl
     }
 
     /**
+     * Make a get request with optional data.
+     *
+     * The get request has no body data, the data will be correctly added to the $url with the http_build_query() method.
+     *
+     * @param string $url  The url to make the get request for
+     * @param array  $data Optional arguments who are part of the url
+     * @param string $filename  The file absolute path
+     * @return self
+     */
+    public function download($url, $filePath, $data = [])
+    {
+        $this->setOpt(CURLOPT_CUSTOMREQUEST, "GET");
+        if (count($data) > 0) {
+            $this->setOpt(CURLOPT_URL, $url.'?'.http_build_query($data));
+        } else {
+            $this->setOpt(CURLOPT_URL, $url);
+        }
+        $this->setOpt(CURLOPT_HTTPGET, true);
+
+        $file_handle = fopen($filePath, 'w+');
+        $this->setOpt(CURLOPT_FILE, $file_handle);
+
+        $this->exec();
+        // disable writing to file
+        $this->setOpt(CURLOPT_FILE, null);
+        // close the file for writing
+        fclose($file_handle);
+
+        return $this;
+    }
+
+    /**
      * Purge Request
      *
      * A very common scenario to send a purge request is within the use of varnish, therefore
