@@ -232,6 +232,18 @@ class Curl
     {
         $this->setOpt(CURLOPT_POST, true);
 
+        $data = http_build_query($data);
+
+        $this->setOpt(CURLOPT_POSTFIELDS, $data);
+    }
+    /**
+     * @param array|object|string $data
+     */
+
+     protected function preparePayloadOld($data)
+    {
+        $this->setOpt(CURLOPT_POST, true);
+
         if (is_array($data) || is_object($data)) {
             $skip = false;
             foreach ($data as $key => $value) {
