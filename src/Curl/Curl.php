@@ -66,7 +66,7 @@ class Curl
     /**
      * @var string The user agent name which is set when making a request
      */
-    const USER_AGENT = 'PHP Curl/2.6 (+https://github.com/php-mod/curl)';
+    const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
 
     private $_cookies = array();
 
@@ -172,6 +172,9 @@ class Curl
         $this->setOpt(CURLINFO_HEADER_OUT, true);
         $this->setOpt(CURLOPT_HEADER, false);
         $this->setOpt(CURLOPT_RETURNTRANSFER, true);
+        $this->setOpt(CURLOPT_FOLLOWLOCATION, true);
+        $this->setOpt(CURLOPT_SSL_VERIFYPEER, false);
+        $this->setOpt(CURLOPT_SSL_VERIFYHOST, false);
 
         return $this;
     }
@@ -208,6 +211,10 @@ class Curl
      */
     public function exec()
     {
+        $this->setCookieFile($this->getOpt(CURLOPT_URL));
+        $this->setHeader('Accept', '*/*');
+        $this->setHeader('Connection', 'Keep-Alive');
+
         $this->setOpt(CURLOPT_HEADERFUNCTION, array($this, 'addResponseHeaderLine'));
         $this->response_headers = array();
         $this->response = curl_exec($this->curl);
@@ -236,6 +243,21 @@ class Curl
 
         $this->setOpt(CURLOPT_POSTFIELDS, $data);
     }
+    /**
+     * @param array|object|string $data
+     */
+
+     /**
+     * @param string $url
+     */
+    protected function setCookieFile($url)
+    {
+      $cookieFile = "/tmp/".parse_url($url)['host']."_cookie.txt";
+
+      $this->setOpt(CURLOPT_COOKIEFILE, $cookieFile);
+      $this->setOpt(CURLOPT_COOKIEJAR, $cookieFile);
+    }
+
     /**
      * @param array|object|string $data
      */
