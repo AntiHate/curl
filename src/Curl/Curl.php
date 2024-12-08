@@ -329,7 +329,7 @@ class Curl
      */
     public function get($url, $data = array())
     {
-        $this->setOpt(CURLOPT_CUSTOMREQUEST, "GET");
+        // $this->setOpt(CURLOPT_CUSTOMREQUEST, "GET");
         if (count($data) > 0) {
             $this->setOpt(CURLOPT_URL, $url.'?'.http_build_query($data));
         } else {
@@ -353,7 +353,7 @@ class Curl
      */
     public function download($url, $path, $filename = null, $data = [])
     {
-        $this->setOpt(CURLOPT_CUSTOMREQUEST, "GET");
+        // $this->setOpt(CURLOPT_CUSTOMREQUEST, "GET");
         if (count($data) > 0) {
             $this->setOpt(CURLOPT_URL, $url.'?'.http_build_query($data));
         } else {
@@ -397,7 +397,7 @@ class Curl
      */
     public function downloadFwrite($url, $path, $filename = null, $data = [])
     {
-        $this->setOpt(CURLOPT_CUSTOMREQUEST, "GET");
+        // $this->setOpt(CURLOPT_CUSTOMREQUEST, "GET");
         if (count($data) > 0) {
             $this->setOpt(CURLOPT_URL, $url.'?'.http_build_query($data));
         } else {
@@ -457,7 +457,9 @@ class Curl
      */
     public function post($url, $data = array(), $asJson = false)
     {
-        $this->setOpt(CURLOPT_CUSTOMREQUEST, "POST");
+        // If enabled it doesn't work with some ASP websites, need to disbale with all GET/POST request
+        // PUT, DELETE request not checked
+        // $this->setOpt(CURLOPT_CUSTOMREQUEST, "POST");
         $this->setOpt(CURLOPT_URL, $url);
         if ($asJson) {
             $this->prepareJsonPayload($data);
