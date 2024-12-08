@@ -341,16 +341,17 @@ class Curl
     }
 
     /**
-     * Make a get request with optional data.
+     * Download file with curl file handle option
      *
      * The get request has no body data, the data will be correctly added to the $url with the http_build_query() method.
      *
      * @param string $url  The url to make the get request for
      * @param array  $data Optional arguments who are part of the url
-     * @param string $filename  The file absolute path
+     * @param string $path  The absolute path to save the file. filename will be extracted from the url.
+     * @param string $filename  override filename
      * @return self
      */
-    public function download($url, $filePath, $data = [])
+    public function download($url, $path, $filename = null, $data = [])
     {
         $this->setOpt(CURLOPT_CUSTOMREQUEST, "GET");
         if (count($data) > 0) {
@@ -360,13 +361,54 @@ class Curl
         }
         $this->setOpt(CURLOPT_HTTPGET, true);
 
+        if(is_null($filename))
+          $filePath = $path.'/'.basename($url);
+        else
+          $filePath = $path.'/'.$filename;
+
         $file_handle = fopen($filePath, 'w+');
+
         $this->setOpt(CURLOPT_FILE, $file_handle);
 
         $this->exec();
         // disable writing to file
         $this->setOpt(CURLOPT_FILE, null);
         // close the file for writing
+        fclose($file_handle);
+
+        return $this;
+    }
+
+    /**
+     * Download file using fwrite file method
+     *
+     * The get request has no body data, the data will be correctly added to the $url with the http_build_query() method.
+     *
+     * @param string $url  The url to make the get request for
+     * @param array  $data Optional arguments who are part of the url
+     * @param string $path  The absolute path to save the file. filename will be extracted from the url.
+     * @param string $filename  override filename
+     * @return self
+     */
+    public function downloadFwrite($url, $path, $filename = null, $data = [])
+    {
+        $this->setOpt(CURLOPT_CUSTOMREQUEST, "GET");
+        if (count($data) > 0) {
+            $this->setOpt(CURLOPT_URL, $url.'?'.http_build_query($data));
+        } else {
+            $this->setOpt(CURLOPT_URL, $url);
+        }
+        $this->setOpt(CURLOPT_HTTPGET, true);
+
+        $this->exec();
+
+        if(is_null($filename))
+          $filePath = $path.'/'.basename($url);
+        else
+          $filePath = $path.'/'.$filename;
+
+        $file_handle = fopen($filePath, 'w+');
+        fwrite($file_handle, $this->response);
         fclose($file_handle);
 
         return $this;
